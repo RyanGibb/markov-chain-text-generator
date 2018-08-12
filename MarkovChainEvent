@@ -1,0 +1,13 @@
+MarkovChainEvent<T> {
+	T value;
+	
+	MarkovChainEvent(T value){
+		this.value = value;
+	}
+
+	public MarkovChainEvent getRandomEvent(){
+		
+	}
+
+}
+
