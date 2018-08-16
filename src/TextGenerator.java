@@ -30,15 +30,21 @@ class TextGenerator {
 
     public void train(Scanner scanner) {
         String lastWord = null;
+        String word = null;
         while (scanner.hasNext()) {
-            String word = scanner.next();
+            word = scanner.next();
             //Add starting word.
             if (lastWord != null) {
                 markovChain.updateWithOccurrence(lastWord, word);
             }
+            else{
+                markovChain.addStartState(word);
+            }
             lastWord = word;
         }
-        //Add finishing word
+        if (word != null) {
+            markovChain.addEndState(word);
+        }
     }
 
     public String generate(int words) {

@@ -3,11 +3,23 @@ import java.util.stream.Collectors;
 
 public class MarkovChain<T extends Comparable<T>> {
     private Map<T, Map<T, Integer>> stateOccurrences = new HashMap<>();
+    private Set<T> startStates = new HashSet<>();
+    private Set<T> endStates = new HashSet<>();
     private Random random = new Random();
 
     public void updateWithOccurrence(T state, T nextState) {
         stateOccurrences.computeIfAbsent(state, k -> new HashMap<>());
         stateOccurrences.get(state).merge(nextState, 1, (a, b) -> a + b);
+    }
+
+    public void addStartState(T state){
+        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>());
+        startStates.add(state);
+    }
+
+    public void addEndState(T state){
+        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>());
+        endStates.add(state);
     }
 
     public T getNextState(T state) {
