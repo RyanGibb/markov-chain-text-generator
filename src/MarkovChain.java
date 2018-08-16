@@ -14,19 +14,18 @@ public class MarkovChain<T extends Comparable<T>> {
     public void calculateProbabilities() {
         stateProbabilities = new HashMap<>();
         for (Map.Entry<T, Map<T, Integer>> stateEntry : stateOccurrences.entrySet()) {
+            T currentState = stateEntry.getKey();
             //test w/ empty values
             int totalOcurrences = stateEntry.getValue().values().parallelStream().reduce((a, b) -> a + b).get();
             Map<Double, T> probabilities =  new HashMap<>();
             for (Map.Entry<T, Integer> possibleNextStatesEntry : stateEntry.getValue().entrySet()){
                 int occurences = possibleNextStatesEntry.getValue();
-                double probability = (double) totalOcurrences / occurences;
+                double probability = (double) occurences / totalOcurrences;
                 T possibleNextState = possibleNextStatesEntry.getKey();
                 probabilities.put(probability, possibleNextState);
             }
-            T currentState = stateEntry.getKey();
             stateProbabilities.put(currentState, probabilities);
         }
-
     }
 
     public T getNextState(T state) {
