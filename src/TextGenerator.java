@@ -49,13 +49,13 @@ class TextGenerator {
 
     public String generate(int words) {
         StringBuilder sb = new StringBuilder();
-        String word = markovChain.getInitialState();
+        String word = markovChain.getRandomState();
         for (int i = 0; i < words ; i++){
             sb.append(word).append(" ");
             word = markovChain.getNextState(word);
             if (word == null){
                 sb.append(". ");
-                word = markovChain.getInitialState();
+                word = markovChain.getRandomState();
             }
         }
         return sb.toString();

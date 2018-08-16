@@ -24,7 +24,7 @@ public class MarkovChain<T extends Comparable<T>> {
     public T getNextState(T state) {
         Map<T, Integer> nextStateOccurrences = stateOccurrences.get(state);
         if (nextStateOccurrences.size() == 0){
-            return getInitialState();
+            return getRandomState();
         }
         //test w/ empty values
         int totalOccurrences = nextStateOccurrences.values().parallelStream().reduce((a, b) -> a + b).get();
@@ -42,8 +42,18 @@ public class MarkovChain<T extends Comparable<T>> {
         return nextState;
     }
 
-    public T getInitialState() {
+    public T getRandomState() {
         List<T> states = new ArrayList<>(stateOccurrences.keySet());
+        return states.get(random.nextInt(states.size()));
+    }
+
+    public T getStartState(){
+        List<T> states = new ArrayList<>(startStates);
+        return states.get(random.nextInt(states.size()));
+    }
+
+    public T getEndState(){
+        List<T> states = new ArrayList<>(endStates);
         return states.get(random.nextInt(states.size()));
     }
 
