@@ -21,11 +21,9 @@ public class MarkovChain<T> {
     }
 
     public void updateWithOccurrence(T stateValue, T nextStateValue) {
-        //find State in states with value equal to stateValue
         State state = getStateWithValue(stateValue);
         State nextState = getStateWithValue(nextStateValue);
         state.addOccurrence(nextState);
-
     }
 
     public void addStartState(T stateValue){
@@ -71,6 +69,14 @@ public class MarkovChain<T> {
 
     public State getEndState(){
         return getRandomState(endStates);
+    }
+
+    public boolean isEndState(State state){
+        return endStates.contains(state);
+    }
+
+    public boolean isStartState(State state){
+        return startStates.contains(state);
     }
 
     @Override
