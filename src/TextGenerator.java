@@ -1,13 +1,18 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Scanner;
 
 class TextGenerator {
     public static final String USAGE = "Usage: java TextGenerator <training text>\n" +
             "or: <input> | java TextGenerator";
-    public static final int DEFAULT_WORDS_GENERATED = 100;
+    public static final int DEFAULT_WORDS_GENERATED = 500;
+    public static final String MARKOV_CHAIN_FILE = "markov-chain.txt";
 
     public MarkovChain<String> markovChain = new MarkovChain<>();
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         Scanner scanner;
         if (args.length == 0) {
             scanner = new Scanner(System.in);
@@ -19,7 +24,8 @@ class TextGenerator {
         }
         TextGenerator generator = new TextGenerator();
         generator.train(scanner);
-        System.out.println(generator.markovChain);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(MARKOV_CHAIN_FILE));
+        writer.write(generator.markovChain.toString());
         System.out.println(generator.generate(DEFAULT_WORDS_GENERATED));
     }
 
@@ -32,14 +38,19 @@ class TextGenerator {
             }
             lastWord = word;
         }
+        markovChain.calculateProbabilities();
     }
 
     public String generate(int words) {
         StringBuilder sb = new StringBuilder();
         String word = markovChain.getInitialState();
-        for (int i = 0; i < words; i++){
+        for (int i = 0; i < words ; i++){
             sb.append(word).append(" ");
-            word = markovChain.getState();
+            word = markovChain.getNextState(word);
+            if (word == null){
+                sb.append(". ");
+                word = markovChain.getInitialState();
+            }
         }
         return sb.toString();
     }
