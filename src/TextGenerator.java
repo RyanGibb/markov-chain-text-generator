@@ -7,9 +7,9 @@ class TextGenerator {
     public static final String USAGE = "Usage: java TextGenerator <training text>\n" +
             "or: <input> | java TextGenerator";
     public static final int DEFAULT_WORDS_GENERATED = 500;
-    public static final String MARKOV_CHAIN_FILE = "markov-chain.txt";
+    public static final String MARKOV_CHAIN_FILE = "markov-chain.json";
 
-    public MarkovChain<String> markovChain = new MarkovChain<>();
+    private MarkovChain<String> markovChain = new MarkovChain<>();
 
     public static void main(String args[]) throws IOException {
         Scanner scanner;

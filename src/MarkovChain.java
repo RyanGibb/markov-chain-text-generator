@@ -1,14 +1,21 @@
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class MarkovChain<T extends Comparable<T>> {
-    private Map<T, Map<T, Integer>> stateOccurrences = new HashMap<>();
-    private Set<T> startStates = new HashSet<>();
-    private Set<T> endStates = new HashSet<>();
+public class MarkovChain<T> {
+    private Set<State<T>> states = new HashSet<>();
+    private Set<State<T>> startStates = new HashSet<>();
+    private Set<State<T>> endStates = new HashSet<>();
     private Random random = new Random();
 
-    public void updateWithOccurrence(T state, T nextState) {
+    public getStateFromSetWithValue(Set<State<T>> statesSet, T value){
+        statesSet.stream()
+                .map(State::getValue)
+                .f
+    }
+
+    public void updateWithOccurrence(T stateValue, T nextStateValue) {
         stateOccurrences.computeIfAbsent(state, k -> new HashMap<>()).merge(nextState, 1, (a, b) -> a + b);
+        //find State in states with value equal to stateValue
+        //add
     }
 
     public void addStartState(T state){
@@ -42,42 +49,29 @@ public class MarkovChain<T extends Comparable<T>> {
         return nextState;
     }
 
-    public T getRandomState() {
-        List<T> states = new ArrayList<>(stateOccurrences.keySet());
-        return states.get(random.nextInt(states.size()));
+    private T getRandomState(Set<State<T>> statesSet) {
+        List<State<T>> statesList = new ArrayList<>(statesSet);
+        return statesList.get(random.nextInt(states.size())).getValue();
+    }
+
+    public T getRandomState(){
+        return getRandomState(states);
     }
 
     public T getStartState(){
-        List<T> states = new ArrayList<>(startStates);
-        return states.get(random.nextInt(states.size()));
+        return getRandomState(startStates);
     }
 
     public T getEndState(){
-        List<T> states = new ArrayList<>(endStates);
-        return states.get(random.nextInt(states.size()));
+        return getRandomState(endStates);
     }
 
+    @Override
     public String toString() {
-        return stateOccurrences.entrySet()
-                .stream().sorted(new Comparator<Map.Entry<T, Map<T, Integer>>>() {
-                    @Override
-                    public int compare(Map.Entry<T, Map<T, Integer>> tMapEntry, Map.Entry<T, Map<T, Integer>> t1) {
-                        return tMapEntry.<T>getKey().compareTo(t1.getKey());
-                    }
-                })
-                .map(e -> e.getKey() + ":\n" +
-                        e.getValue().entrySet()
-                                .stream()
-                                .sorted(new Comparator<Map.Entry<T, Integer>>() {
-                                    @Override
-                                    public int compare(Map.Entry<T, Integer> tIntegerEntry, Map.Entry<T, Integer> t1) {
-                                        return tIntegerEntry.getKey().compareTo(t1.getKey());
-                                    }
-                                })
-                                .map(e2 -> "\t" + e2.getKey() + " - " + e2.getValue())
-                                .collect(Collectors.joining("\n"))
-                )
-                .collect(Collectors.joining("\n"));
+        return "MarkovChain{" +
+                "states=" + states +
+                ", startStates=" + startStates +
+                ", endStates=" + endStates +
+                '}';
     }
-
 }
