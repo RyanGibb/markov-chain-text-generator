@@ -8,8 +8,7 @@ public class MarkovChain<T extends Comparable<T>> {
     private Random random = new Random();
 
     public void updateWithOccurrence(T state, T nextState) {
-        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>());
-        stateOccurrences.get(state).merge(nextState, 1, (a, b) -> a + b);
+        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>()).merge(nextState, 1, (a, b) -> a + b);
     }
 
     public void addStartState(T state){
