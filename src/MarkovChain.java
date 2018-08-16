@@ -6,39 +6,46 @@ public class MarkovChain<T> {
     private Set<State<T>> endStates = new HashSet<>();
     private Random random = new Random();
 
-    public getStateFromSetWithValue(Set<State<T>> statesSet, T value){
-        statesSet.stream()
-                .map(State::getValue)
-                .f
+    // Checks if State with a given value exists, adds it to the set states if not, and returns the State
+    private State<T> getStateWithValue(T value){
+        State state = states.stream()
+                .filter(s -> s.getValue().equals(value))
+                // As State.equals overridden to compare values, there should be no more than 1 value, so finAny is fine
+                .findAny()
+                .orElse(null);
+        if (state == null) {
+            state = new State<>(value);
+            states.add(state);
+        }
+        return state;
     }
 
     public void updateWithOccurrence(T stateValue, T nextStateValue) {
-        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>()).merge(nextState, 1, (a, b) -> a + b);
         //find State in states with value equal to stateValue
-        //add
+        State state = getStateWithValue(stateValue);
+        State nextState = getStateWithValue(nextStateValue);
+        state.addOccurrence(nextState);
+
     }
 
-    public void addStartState(T state){
-        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>());
-        startStates.add(state);
+    public void addStartState(T stateValue){
+        startStates.add(getStateWithValue(stateValue));
     }
 
-    public void addEndState(T state){
-        stateOccurrences.computeIfAbsent(state, k -> new HashMap<>());
-        endStates.add(state);
+    public void addEndState(T stateValue){
+        endStates.add(getStateWithValue(stateValue));
     }
 
-    public T getNextState(T state) {
-        Map<T, Integer> nextStateOccurrences = stateOccurrences.get(state);
+    public State getNextState(State<?> state) {
+        Map<State, Integer> nextStateOccurrences = state.getNextStateProbabilities();
         if (nextStateOccurrences.size() == 0){
             return getRandomState();
         }
-        //test w/ empty values
-        int totalOccurrences = nextStateOccurrences.values().parallelStream().reduce((a, b) -> a + b).get();
+        int totalOccurrences = nextStateOccurrences.values().parallelStream().reduce((a, b) -> a + b).orElse(0);
         double randomInt = random.nextInt(totalOccurrences) + 1;
         int sum = 0;
-        T nextState = null;
-        for (Map.Entry<T, Integer> entry : nextStateOccurrences.entrySet()) {
+        State nextState = null;
+        for (Map.Entry<State, Integer> entry : nextStateOccurrences.entrySet()) {
             int occurrences = entry.getValue();
             nextState = entry.getKey();
             sum += occurrences;
@@ -49,20 +56,20 @@ public class MarkovChain<T> {
         return nextState;
     }
 
-    private T getRandomState(Set<State<T>> statesSet) {
+    private State getRandomState(Set<State<T>> statesSet) {
         List<State<T>> statesList = new ArrayList<>(statesSet);
-        return statesList.get(random.nextInt(states.size())).getValue();
+        return statesList.get(random.nextInt(states.size()));
     }
 
-    public T getRandomState(){
+    public State getRandomState(){
         return getRandomState(states);
     }
 
-    public T getStartState(){
+    public State getStartState(){
         return getRandomState(startStates);
     }
 
-    public T getEndState(){
+    public State getEndState(){
         return getRandomState(endStates);
     }
 
