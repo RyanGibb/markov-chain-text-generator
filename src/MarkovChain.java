@@ -3,7 +3,6 @@ import java.util.stream.Collectors;
 
 public class MarkovChain<T extends Comparable<T>> {
     private Map<T, Map<T, Integer>> stateOccurrences = new HashMap<>();
-    private Map<T, Map<Double, T>> stateProbabilities;
     private Random random = new Random();
 
     public void updateWithOccurrence(T state, T nextState) {
@@ -11,36 +10,24 @@ public class MarkovChain<T extends Comparable<T>> {
         stateOccurrences.get(state).merge(nextState, 1, (a, b) -> a + b);
     }
 
-    public void calculateProbabilities() {
-        stateProbabilities = new HashMap<>();
-        for (Map.Entry<T, Map<T, Integer>> stateEntry : stateOccurrences.entrySet()) {
-            T currentState = stateEntry.getKey();
-            //test w/ empty values
-            int totalOcurrences = stateEntry.getValue().values().parallelStream().reduce((a, b) -> a + b).get();
-            Map<Double, T> probabilities =  new HashMap<>();
-            for (Map.Entry<T, Integer> possibleNextStatesEntry : stateEntry.getValue().entrySet()){
-                int occurences = possibleNextStatesEntry.getValue();
-                double probability = (double) occurences / totalOcurrences;
-                T possibleNextState = possibleNextStatesEntry.getKey();
-                probabilities.put(probability, possibleNextState);
-            }
-            stateProbabilities.put(currentState, probabilities);
-        }
-    }
-
     public T getNextState(T state) {
-        double randomDouble = random.nextDouble();
-        Map<Double, T> probabilities = stateProbabilities.get(state);
-        double sum = 0;
-        T nextState = null;
-        if (probabilities.size() == 0){
+        Map<T, Integer> nextStateOccurrences = stateOccurrences.get(state);
+        if (nextStateOccurrences == null){
+            return getInitialState();
+        }
+        if (nextStateOccurrences.size() == 0){
             return null;
         }
-        for (Map.Entry<Double, T> entry : probabilities.entrySet()) {
-            double probability = entry.getKey();
-            nextState = entry.getValue();
-            sum += probability;
-            if (randomDouble > sum){
+        //test w/ empty values
+        int totalOccurrences = nextStateOccurrences.values().parallelStream().reduce((a, b) -> a + b).get();
+        double randomInt = random.nextInt(totalOccurrences) + 1;
+        int sum = 0;
+        T nextState = null;
+        for (Map.Entry<T, Integer> entry : nextStateOccurrences.entrySet()) {
+            int occurrences = entry.getValue();
+            nextState = entry.getKey();
+            sum += occurrences;
+            if (sum >= randomInt){
                 break;
             }
         }
@@ -48,7 +35,7 @@ public class MarkovChain<T extends Comparable<T>> {
     }
 
     public T getInitialState() {
-        List<T> states = new ArrayList<>(stateProbabilities.keySet());
+        List<T> states = new ArrayList<>(stateOccurrences.keySet());
         return states.get(random.nextInt(states.size()));
     }
 

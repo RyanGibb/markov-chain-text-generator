@@ -32,12 +32,13 @@ class TextGenerator {
         String lastWord = null;
         while (scanner.hasNext()) {
             String word = scanner.next();
+            //Add starting word.
             if (lastWord != null) {
                 markovChain.updateWithOccurrence(lastWord, word);
             }
             lastWord = word;
         }
-        markovChain.calculateProbabilities();
+        //Add finishing word
     }
 
     public String generate(int words) {
