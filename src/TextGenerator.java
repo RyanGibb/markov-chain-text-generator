@@ -25,6 +25,7 @@ class TextGenerator {
         generator.train(scanner);
         BufferedWriter writer = new BufferedWriter(new FileWriter(MARKOV_CHAIN_FILE));
         writer.write(generator.markovChain.toString());
+        writer.close();
         System.out.println(generator.generate(DEFAULT_WORDS_GENERATED));
     }
 
